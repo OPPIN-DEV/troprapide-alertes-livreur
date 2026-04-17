@@ -703,17 +703,14 @@
        GPS SIMULATION
        ============================================================ */
     function updateGPS() {
-      const db = getDB();
-      if (!db.drivers[myDriverId]) return;
-
-      // Simulate small GPS movement
+      if (!myDriverId || !_cache.drivers[myDriverId]) return;
       const jitter = () => (Math.random() - .5) * 0.001;
-      db.drivers[myDriverId].lat += jitter();
-      db.drivers[myDriverId].lng += jitter();
-      saveDB(db);
-
-      const lat = db.drivers[myDriverId].lat.toFixed(5);
-      const lng = db.drivers[myDriverId].lng.toFixed(5);
+      _cache.drivers[myDriverId].lat = (_cache.drivers[myDriverId].lat || 5.340) + jitter();
+      _cache.drivers[myDriverId].lng = (_cache.drivers[myDriverId].lng || -4.010) + jitter();
+      const lat = _cache.drivers[myDriverId].lat.toFixed(5);
+      const lng = _cache.drivers[myDriverId].lng.toFixed(5);
+      // Write only GPS fields — never rewrite everything
+      _fbdb.ref('livreurs/' + myDriverId).update({ lat: Number(lat), lng: Number(lng) });
       document.getElementById('gps-display').textContent = `lat: ${lat}  lng: ${lng}`;
       document.getElementById('driver-gps-bar').textContent = `${lat}, ${lng}`;
     }
@@ -728,14 +725,11 @@
        STATUS TOGGLE
        ============================================================ */
     function toggleStatus() {
-      const db = getDB();
-      const d = db.drivers[myDriverId];
+      const d = _cache.drivers[myDriverId];
       if (!d) return;
       if (d.status === 'busy') { alert('Vous avez des commandes en cours — livrez-les d\'abord'); return; }
-      d.status = d.status === 'available' ? 'offline' : 'available';
-      saveDB(db);
-      addLog(`🏍️ ${d.name} est maintenant ${d.status === 'available' ? 'disponible' : 'hors ligne'}`);
-      renderApp();
+      const newStatus = d.status === 'available' ? 'offline' : 'available';
+      _fbdb.ref('livreurs/' + myDriverId).update({ status: newStatus });
     }
 
     /* ============================================================
@@ -859,27 +853,19 @@
        ORDER ACTIONS
        ============================================================ */
     function pickupOrder(orderId) {
-      const db = getDB();
-      db.orders[orderId].status = 'en-route';
-      db.orders[orderId].pickedAt = Date.now();
-      saveDB(db);
-      addLog(`🏍️ ${db.drivers[myDriverId].name} en route pour #${orderId.slice(-4)}`);
+      _fbdb.ref('orders/' + orderId).update({ status: 'en-route', pickedAt: Date.now() });
       startDeliveryProgress(orderId);
-      renderApp();
     }
 
     function deliverOrder(orderId) {
-      const db = getDB();
-      db.orders[orderId].status = 'livree';
-      db.orders[orderId].deliveredAt = Date.now();
-      db.drivers[myDriverId].activeOrders = Math.max(0, (db.drivers[myDriverId].activeOrders || 1) - 1);
-      db.drivers[myDriverId].currentOrder = null;
-      if (db.drivers[myDriverId].activeOrders === 0) db.drivers[myDriverId].status = 'available';
-      db.revenue = (db.revenue || 0) + (db.orders[orderId].total || 0);
-      saveDB(db);
-      addLog(`✅ Commande #${orderId.slice(-4)} livrée par ${db.drivers[myDriverId].name}`);
+      const activeOrders = Math.max(0, (_cache.drivers[myDriverId]?.activeOrders || 1) - 1);
+      _fbdb.ref('orders/' + orderId).update({ status: 'livree', deliveredAt: Date.now() });
+      _fbdb.ref('livreurs/' + myDriverId).update({
+        activeOrders,
+        currentOrder: null,
+        status: 'available'
+      });
       stopDeliveryProgress(orderId);
-      renderApp();
     }
 
     function reportIssue(orderId) {
@@ -941,60 +927,55 @@
     }
 
     /* ── FIREBASE LISTENERS ── */
-    let _firstDriverLoad = true;
 
+    // Livreurs: update cache + UI on any change
     _fbdb.ref('livreurs').on('value', snap => {
-      const rawDrivers = snap.val();
-      if (!rawDrivers || Object.keys(rawDrivers).length === 0) {
-        _fbdb.ref('livreurs').set(SEED_DRIVERS);
-        _cache.drivers = structuredClone(SEED_DRIVERS);
-      } else {
-        const normalized = {};
-        const updates = {};
-        Object.entries(rawDrivers).forEach(([id, d]) => {
-          const before = JSON.stringify(d);
-          normalizeDriver(id, d);
-          if (JSON.stringify(d) !== before) updates['livreurs/' + id] = d;
-          normalized[id] = d;
-        });
-        _cache.drivers = normalized;
-        if (Object.keys(updates).length > 0) _fbdb.ref().update(updates);
+      const raw = snap.val() || {};
+      if (Object.keys(raw).length > 0) {
+        Object.entries(raw).forEach(([id, d]) => normalizeDriver(id, d));
+        _cache.drivers = raw;
       }
-      if (_firstDriverLoad) {
-        _firstDriverLoad = false;
-        renderDriverOptions();
-        // Restore session after drivers are loaded
-        const savedSession = localStorage.getItem('driver_session');
-        if (savedSession && _cache.drivers[savedSession]) {
-          selectedDriverId = savedSession;
-          myDriverId = savedSession;
-          const d = _cache.drivers[myDriverId];
-          document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
-          document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
-          document.getElementById('login-screen').style.display = 'none';
-          document.getElementById('app-screen').style.display = 'block';
-          // Force available on session restore too
-          _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
-          Object.entries(_cache.orders || {}).forEach(([id, o]) => {
-            if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
-          });
-          updateGPS();
-          startGPSInterval();
-          renderApp();
-        }
-      } else if (myDriverId) {
-        renderApp();
-      } else {
-        renderDriverOptions();
-      }
+      // Refresh UI with latest data
+      if (myDriverId) renderApp();
+      else renderDriverOptions();
     });
 
+    // Orders: update cache + UI on any change
     _fbdb.ref('orders').on('value', snap => {
       const orders = snap.val() || {};
       Object.keys(orders).forEach(id => normalizeOrder(id, orders[id]));
       _cache.orders = orders;
-      if (myDriverId) {
-        checkNewAssignments();
+      if (myDriverId) { checkNewAssignments(); renderApp(); }
+    });
+
+    // Initial load: fetch livreurs once, then handle session restore
+    _fbdb.ref('livreurs').once('value').then(snap => {
+      const raw = snap.val() || {};
+      if (Object.keys(raw).length > 0) {
+        Object.entries(raw).forEach(([id, d]) => normalizeDriver(id, d));
+        _cache.drivers = raw;
+      } else {
+        // Firebase has no livreurs — use local seed for display only, do NOT write to Firebase
+        _cache.drivers = structuredClone(SEED_DRIVERS);
+      }
+      renderDriverOptions();
+
+      // Try to restore previous session
+      const savedSession = localStorage.getItem('driver_session');
+      if (savedSession && _cache.drivers[savedSession]) {
+        myDriverId = savedSession;
+        selectedDriverId = savedSession;
+        const d = _cache.drivers[myDriverId];
+        document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
+        document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+        _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
+        Object.entries(_cache.orders || {}).forEach(([id, o]) => {
+          if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
+        });
+        updateGPS();
+        startGPSInterval();
         renderApp();
       }
     });
