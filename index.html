@@ -677,8 +677,11 @@
       document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
       document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
 
-      // Force status to available on login — clears any stuck 'busy' state
-      _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
+      // Only reset to available if no active order — don't wipe a live dispatch
+      const driverState = _cache.drivers[myDriverId] || {};
+      if (!driverState.currentOrder) {
+        _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
+      }
 
       // Mémoriser les commandes déjà existantes pour ne pas bipper au démarrage
       Object.entries(_cache.orders || {}).forEach(([id, o]) => {
@@ -970,7 +973,10 @@
         document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
-        _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
+        // Only reset to available if no active order — don't wipe a live dispatch
+        if (!d.currentOrder) {
+          _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
+        }
         Object.entries(_cache.orders || {}).forEach(([id, o]) => {
           if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
         });
