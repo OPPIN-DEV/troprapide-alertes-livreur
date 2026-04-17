@@ -639,14 +639,18 @@
        LOGIN
        ============================================================ */
     function renderDriverOptions() {
-      const db = getDB();
-      const drivers = db.drivers || SEED_DRIVERS;
+      const drivers = _cache.drivers;
       const el = document.getElementById('driver-options');
+      if (!drivers || Object.keys(drivers).length === 0) {
+        el.innerHTML = '<p style="color:var(--muted);text-align:center;font-size:.85rem;">Chargement...</p>';
+        return;
+      }
+      // Show ALL drivers — even busy ones can log in (login auto-sets them available)
       el.innerHTML = Object.entries(drivers).map(([id, d]) => `
     <div class="driver-option" id="opt-${id}" onclick="selectDriver('${id}')">
       <span class="driver-avatar">${d.avatar || '🏍️'}</span>
       <div class="driver-detail">
-        <div class="driver-name">${esc(d.name)}</div>
+        <div class="driver-name">${esc(d.name || 'Livreur #' + String(id).slice(-4))}</div>
         <div class="driver-status ${d.status === 'available' ? 'ds-available' : 'ds-busy'}">
           ${d.status === 'available' ? '🟢 Disponible' : '🟠 En mission'}
         </div>
@@ -669,14 +673,15 @@
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
 
-      const db = getDB();
-      const d = db.drivers[myDriverId];
+      const d = _cache.drivers[myDriverId];
       document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
-      document.getElementById('driver-name-bar').textContent = d.name;
+      document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
+
+      // Force status to available on login — clears any stuck 'busy' state
+      _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
 
       // Mémoriser les commandes déjà existantes pour ne pas bipper au démarrage
-      const dbInit = getDB();
-      Object.entries(dbInit.orders || {}).forEach(([id, o]) => {
+      Object.entries(_cache.orders || {}).forEach(([id, o]) => {
         if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
       });
 
@@ -965,9 +970,11 @@
           myDriverId = savedSession;
           const d = _cache.drivers[myDriverId];
           document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
-          document.getElementById('driver-name-bar').textContent = d.name;
+          document.getElementById('driver-name-bar').textContent = d.name || 'Livreur #' + String(myDriverId).slice(-4);
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app-screen').style.display = 'block';
+          // Force available on session restore too
+          _fbdb.ref('livreurs/' + myDriverId).update({ status: 'available', activeOrders: 0, currentOrder: null });
           Object.entries(_cache.orders || {}).forEach(([id, o]) => {
             if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
           });
