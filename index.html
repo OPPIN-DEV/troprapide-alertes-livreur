@@ -1,1404 +1,921 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-    />
-    <title>TropRapide · Livreur</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --yellow: #f5c800;
-        --black: #0a0a0a;
-        --dark: #111;
-        --card: #1a1a1a;
-        --border: #2a2a2a;
-        --text: #f0f0f0;
-        --muted: #777;
-        --green: #22c55e;
-        --red: #ef4444;
-        --orange: #f97316;
-        --blue: #3b82f6;
-      }
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-      }
-      body {
-        background: var(--black);
-        color: var(--text);
-        font-family: "DM Sans", sans-serif;
-        min-height: 100vh;
-      }
 
-      /* LOGIN */
-      .login-screen {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 24px;
-        background: var(--dark);
-      }
-      .login-logo {
-        font-family: "Syne", sans-serif;
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--yellow);
-        margin-bottom: 6px;
-      }
-      .login-sub {
-        color: var(--muted);
-        font-size: 0.85rem;
-        margin-bottom: 32px;
-      }
-      .login-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 26px;
-        width: 100%;
-        max-width: 360px;
-      }
-      .login-title {
-        font-family: "Syne", sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 18px;
-        text-align: center;
-      }
-      .field {
-        margin-bottom: 13px;
-      }
-      .field label {
-        font-size: 0.73rem;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: block;
-        margin-bottom: 5px;
-      }
-      .field input,
-      .field select {
-        width: 100%;
-        background: var(--dark);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        color: var(--text);
-        padding: 11px 13px;
-        font-size: 0.9rem;
-        font-family: "DM Sans", sans-serif;
-        outline: none;
-        -webkit-appearance: none;
-      }
-      .field input:focus,
-      .field select:focus {
-        border-color: var(--yellow);
-      }
-      .btn-login {
-        width: 100%;
-        padding: 13px;
-        background: var(--yellow);
-        color: var(--black);
-        border: none;
-        border-radius: 11px;
-        font-size: 0.95rem;
-        font-weight: 800;
-        font-family: "Syne", sans-serif;
-        cursor: pointer;
-        margin-top: 4px;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Livreur — TropRapide</title>
+  <style>
+    :root {
+      --bg: #000;
+      --card: #0d0d0d;
+      --card2: #111;
+      --border: #1e1e1e;
+      --yellow: #F5C800;
+      --green: #22C55E;
+      --red: #EF4444;
+      --orange: #F97316;
+      --blue: #3B82F6;
+      --text: #fff;
+      --muted: #888;
+    }
 
-      /* APP */
-      .app {
-        display: none;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      .app-header {
-        background: var(--dark);
-        border-bottom: 1px solid var(--border);
-        padding: 13px 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-      }
-      .hname {
-        font-family: "Syne", sans-serif;
-        font-weight: 800;
-        font-size: 0.95rem;
-        color: var(--yellow);
-      }
-      .hrole {
-        font-size: 0.7rem;
-        color: var(--muted);
-      }
-      .dtoggle {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 100px;
-        padding: 7px 12px;
-        cursor: pointer;
-      }
-      .ddot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-      }
-      .ddot.on {
-        background: var(--green);
-        animation: pulse 1.5s infinite;
-      }
-      .ddot.off {
-        background: #444;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.3);
-        }
-      }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      /* EARNINGS BAR */
-      .earn-bar {
-        background: var(--card);
-        border-bottom: 1px solid var(--border);
-        padding: 13px 18px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-      }
-      .ei {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex: 1;
-      }
-      .ev {
-        font-family: "Syne", sans-serif;
-        font-size: 1.25rem;
-        font-weight: 800;
-      }
-      .ev.y {
-        color: var(--yellow);
-      }
-      .ev.g {
-        color: var(--green);
-      }
-      .ev.b {
-        color: var(--blue);
-      }
-      .el {
-        font-size: 0.66rem;
-        color: var(--muted);
-        text-align: center;
-      }
-      .esep {
-        width: 1px;
-        height: 28px;
-        background: var(--border);
-      }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
 
-      /* PAGES */
-      .page {
-        display: none;
-        padding: 0 0 90px;
-      }
-      .page.active {
-        display: block;
-      }
+    /* LOGIN SCREEN */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-      /* COURSES */
-      .section-lbl {
-        padding: 13px 16px 6px;
-        font-family: "Syne", sans-serif;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.7px;
-      }
-      .course-wrap {
-        padding: 0 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 11px;
-      }
-      .cc {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-      }
-      .cc.urg {
-        border-left: 4px solid var(--red);
-      }
-      .cc.mine {
-        border-color: var(--blue);
-      }
-      .cc.new-a {
-        border-color: var(--yellow);
-        animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-      @keyframes pop {
-        from {
-          transform: scale(0.93);
-          opacity: 0;
-        }
-        to {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-      .ch {
-        padding: 13px 15px 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .cid {
-        font-family: "Syne", sans-serif;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--yellow);
-      }
-      .cb {
-        padding: 0 15px 15px;
-      }
-      .route {
-        display: flex;
-        align-items: stretch;
-        gap: 11px;
-        margin-bottom: 11px;
-      }
-      .rdots {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 3px;
-      }
-      .ds {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--orange);
-        flex-shrink: 0;
-      }
-      .dl {
-        width: 2px;
-        flex: 1;
-        background: var(--border);
-        margin: 3px 0;
-      }
-      .de {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--green);
-        flex-shrink: 0;
-      }
-      .ri {
-        flex: 1;
-      }
-      .rfrom {
-        font-size: 0.83rem;
-        font-weight: 600;
-        margin-bottom: 1px;
-      }
-      .rfrom-s {
-        font-size: 0.73rem;
-        color: var(--muted);
-        margin-bottom: 9px;
-      }
-      .rto {
-        font-size: 0.83rem;
-        font-weight: 600;
-        margin-bottom: 1px;
-      }
-      .rto-s {
-        font-size: 0.73rem;
-        color: var(--muted);
-      }
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-        margin-bottom: 12px;
-      }
-      .chip {
-        background: var(--dark);
-        border-radius: 6px;
-        padding: 3px 9px;
-        font-size: 0.73rem;
-      }
-      .chip.comm {
-        background: rgba(34, 197, 94, 0.12);
-        color: var(--green);
-      }
-      .cactions {
-        display: flex;
-        gap: 7px;
-      }
-      .btn {
-        padding: 11px 14px;
-        border-radius: 11px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        justify-content: center;
-        transition: all 0.15s;
-      }
-      .btn:active {
-        transform: scale(0.96);
-      }
-      .btn-take {
-        background: var(--yellow);
-        color: var(--black);
-        flex: 1;
-      }
-      .btn-done {
-        background: var(--green);
-        color: #fff;
-        flex: 1;
-      }
-      .btn-nav {
-        background: rgba(59, 130, 246, 0.12);
-        color: var(--blue);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-      }
-      .btn-call {
-        background: rgba(34, 197, 94, 0.12);
-        color: var(--green);
-        border: 1px solid rgba(34, 197, 94, 0.2);
-      }
-      .btn-pass {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--muted);
-      }
-      .cbadge {
-        padding: 3px 9px;
-        border-radius: 100px;
-        font-size: 0.68rem;
-        font-weight: 700;
-      }
-      .cbadge.dispo {
-        background: rgba(245, 200, 0, 0.15);
-        color: var(--yellow);
-        border: 1px solid rgba(245, 200, 0, 0.3);
-      }
-      .cbadge.mine {
-        background: rgba(59, 130, 246, 0.15);
-        color: var(--blue);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-      }
-      .cbadge.urg {
-        background: rgba(239, 68, 68, 0.15);
-        color: var(--red);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-      }
+    .login-card {
+      background: var(--card2);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 380px;
+      width: 100%;
+      border: 1px solid var(--border);
+    }
 
-      /* ── GAINS PAGE ── */
-      .gains-wrap {
-        padding: 16px 14px 90px;
-      }
+    .login-logo {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 12px;
+    }
 
-      .gains-header {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 16px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-      .gains-header::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--yellow);
-      }
-      .gains-total-lbl {
-        font-size: 0.75rem;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-      }
-      .gains-total {
-        font-family: "Syne", sans-serif;
-        font-size: 2.4rem;
-        font-weight: 800;
-        color: var(--yellow);
-        line-height: 1;
-      }
-      .gains-total-sub {
-        font-size: 0.78rem;
-        color: var(--muted);
-        margin-top: 4px;
-      }
+    .login-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 4px;
+    }
 
-      .gains-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-      .gcard {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 14px;
-        text-align: center;
-      }
-      .gcard-val {
-        font-family: "Syne", sans-serif;
-        font-size: 1.4rem;
-        font-weight: 800;
-      }
-      .gcard-val.g {
-        color: var(--green);
-      }
-      .gcard-val.b {
-        color: var(--blue);
-      }
-      .gcard-val.o {
-        color: var(--orange);
-      }
-      .gcard-val.y {
-        color: var(--yellow);
-      }
-      .gcard-lbl {
-        font-size: 0.7rem;
-        color: var(--muted);
-        margin-top: 3px;
-      }
+    .login-sub {
+      color: var(--muted);
+      text-align: center;
+      font-size: .85rem;
+      margin-bottom: 24px;
+    }
 
-      .period-tabs {
-        display: flex;
-        gap: 7px;
-        margin-bottom: 14px;
-      }
-      .ptab {
-        flex: 1;
-        padding: 8px;
-        border-radius: 9px;
-        border: 1px solid var(--border);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-align: center;
-        cursor: pointer;
-        color: var(--muted);
-        transition: all 0.2s;
-      }
-      .ptab.active {
-        background: var(--yellow);
-        color: var(--black);
-        border-color: var(--yellow);
-      }
+    .driver-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .2s;
+    }
 
-      .history-title {
-        font-family: "Syne", sans-serif;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        margin-bottom: 10px;
-      }
+    .driver-option:hover {
+      border-color: var(--yellow);
+    }
 
-      .gain-item {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 13px 15px;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .gain-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(34, 197, 94, 0.12);
-        border: 1.5px solid rgba(34, 197, 94, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        flex-shrink: 0;
-      }
-      .gain-info {
-        flex: 1;
-      }
-      .gain-route {
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 2px;
-      }
-      .gain-meta {
-        font-size: 0.73rem;
-        color: var(--muted);
-      }
-      .gain-amount {
-        text-align: right;
-      }
-      .gain-fcfa {
-        font-family: "Syne", sans-serif;
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--green);
-      }
-      .gain-date {
-        font-size: 0.7rem;
-        color: var(--muted);
-        margin-top: 2px;
-      }
+    .driver-option.selected {
+      border-color: var(--yellow);
+      background: #1a1400;
+    }
 
-      .empty-gains {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--muted);
-      }
-      .empty-gains-ico {
-        font-size: 2.8rem;
-        margin-bottom: 10px;
-      }
-      .empty-gains-txt {
-        font-size: 0.85rem;
-        line-height: 1.6;
-      }
+    .driver-avatar {
+      font-size: 1.8rem;
+    }
 
-      /* ALERT */
-      .alert-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.87);
-        backdrop-filter: blur(6px);
-        z-index: 200;
-        align-items: flex-end;
-        justify-content: center;
-      }
-      .alert-overlay.show {
-        display: flex;
-      }
-      .sheet {
-        background: var(--card);
-        border: 2px solid var(--yellow);
-        border-radius: 22px 22px 0 0;
-        padding: 24px 22px 34px;
-        width: 100%;
-        max-width: 480px;
-        animation: sup 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-      @keyframes sup {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: translateY(0);
-        }
-      }
-      .sh {
-        width: 38px;
-        height: 4px;
-        background: var(--border);
-        border-radius: 2px;
-        margin: 0 auto 18px;
-      }
-      .semoji {
-        font-size: 2.8rem;
-        text-align: center;
-        margin-bottom: 7px;
-      }
-      .stitle {
-        font-family: "Syne", sans-serif;
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: var(--yellow);
-        text-align: center;
-        margin-bottom: 3px;
-      }
-      .ssub {
-        font-size: 0.82rem;
-        color: var(--muted);
-        text-align: center;
-        margin-bottom: 16px;
-      }
-      .sdetail {
-        background: var(--dark);
-        border-radius: 11px;
-        padding: 13px;
-        margin-bottom: 16px;
-      }
-      .srow {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-        font-size: 0.82rem;
-      }
-      .srow:not(:last-child) {
-        border-bottom: 1px solid var(--border);
-      }
-      .srow .sl {
-        color: var(--muted);
-      }
-      .srow .sv {
-        font-weight: 600;
-        text-align: right;
-        max-width: 62%;
-      }
-      .sbtns {
-        display: flex;
-        gap: 9px;
-      }
-      .sbtns .btn {
-        flex: 1;
-        padding: 13px;
-      }
+    .driver-detail {
+      flex: 1;
+    }
 
-      /* TOAST */
-      .toast-wrap {
-        position: fixed;
-        top: 14px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 300;
-        display: flex;
-        flex-direction: column;
-        gap: 7px;
-        width: calc(100% - 28px);
-        max-width: 380px;
-      }
-      .toast {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 11px;
-        padding: 11px 15px;
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        animation: tdrop 0.3s ease;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
-      }
-      .toast.s {
-        border-left: 3px solid var(--green);
-      }
-      .toast.w {
-        border-left: 3px solid var(--yellow);
-      }
-      .toast.e {
-        border-left: 3px solid var(--red);
-      }
-      @keyframes tdrop {
-        from {
-          transform: translateY(-14px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-      .t-ico {
-        font-size: 1.1rem;
-      }
-      .t-txt {
-        font-size: 0.81rem;
-        font-weight: 600;
-      }
+    .driver-name {
+      font-weight: 800;
+    }
 
-      .empty {
-        text-align: center;
-        padding: 46px 18px;
-        color: var(--muted);
-      }
+    .driver-status {
+      font-size: .75rem;
+      margin-top: 2px;
+    }
 
-      /* BOTTOM NAV */
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--dark);
-        border-top: 1px solid var(--border);
-        display: flex;
-        padding: 9px 0 18px;
-        z-index: 100;
-      }
-      .ni {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .ni-ico {
-        font-size: 1.2rem;
-      }
-      .ni-lbl {
-        font-size: 0.65rem;
-        color: var(--muted);
-      }
-      .ni.active .ni-lbl {
-        color: var(--yellow);
-      }
-      .ni.active .ni-ico {
-        transform: scale(1.1);
-      }
-    </style>
-  </head>
-  <body>
-    <!-- LOGIN -->
-    <div class="login-screen" id="loginScreen">
-      <div class="login-logo">🛵 TROPRAPIDE</div>
-      <div class="login-sub">Espace Livreur</div>
-      <div class="login-card">
-        <div class="login-title">🔥 Connexion</div>
-        <div class="field">
-          <label>Database URL Firebase</label>
-          <input
-            type="text"
-            id="c_dburl"
-            placeholder="https://troprapide-xxx.firebaseio.com"
-          />
-        </div>
-        <div class="field">
-          <label>API Key</label>
-          <input type="text" id="c_apikey" placeholder="AIzaSy..." />
-        </div>
-        <div class="field">
-          <label>Project ID</label>
-          <input type="text" id="c_projectid" placeholder="troprapide-xxxxx" />
-        </div>
-        <div class="field">
-          <label>Votre nom</label>
-          <select id="c_name">
-            <option>Mamadou T.</option>
-            <option>Kouassi B.</option>
-            <option>Ibrahim D.</option>
-            <option>Sékou A.</option>
-            <option>Narcisse K.</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Zone principale</label>
-          <select id="c_zone">
-            <option>Cocody</option>
-            <option>Plateau</option>
-            <option>Yopougon</option>
-            <option>Marcory</option>
-            <option>Treichville</option>
-            <option>Adjamé</option>
-            <option>Abobo</option>
-            <option>Koumassi</option>
-          </select>
-        </div>
-        <button class="btn-login" onclick="connectFirebase()">
-          🛵 PRENDRE LA ROUTE →
-        </button>
-        <div
-          style="
-            font-size: 0.72rem;
-            color: var(--muted);
-            margin-top: 10px;
-            text-align: center;
-          "
-        >
-          Mêmes infos Firebase que l'admin
-        </div>
+    .ds-available {
+      color: var(--green);
+    }
+
+    .ds-busy {
+      color: var(--orange);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--yellow);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity .2s;
+    }
+
+    .login-btn:hover {
+      opacity: .9;
+    }
+
+    .login-btn:disabled {
+      opacity: .3;
+      cursor: default;
+    }
+
+    /* MAIN APP */
+    #app-screen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #0a0a0a;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .driver-info-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .driver-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .8rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .badge-available {
+      background: #022;
+      color: var(--green);
+    }
+
+    .badge-busy {
+      background: #220;
+      color: var(--orange);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .8rem;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #080808;
+    }
+
+    .stat-mini {
+      text-align: center;
+    }
+
+    .stat-mini .val {
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    .stat-mini .lbl {
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* SECTION */
+    .section {
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: .9rem;
+      font-weight: 900;
+      color: var(--yellow);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ORDER CARDS */
+    .order-card {
+      background: var(--card2);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .order-card.active {
+      border-color: var(--orange);
+      background: #110a00;
+    }
+
+    .order-card.en-route {
+      border-color: var(--blue);
+      background: #00000a;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .order-num {
+      font-weight: 900;
+      font-size: 1rem;
+      color: var(--yellow);
+    }
+
+    .order-status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+
+    .os-prete {
+      background: #1a1500;
+      color: var(--yellow);
+    }
+
+    .os-en-route {
+      background: #00001a;
+      color: var(--blue);
+    }
+
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .info-icon {
+      font-size: 1.1rem;
+      width: 22px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-content {
+      flex: 1;
+    }
+
+    .info-label {
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    /* MAP PREVIEW */
+    .map-mini {
+      background: #0a0a1a;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-route {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+    }
+
+    .map-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .map-line {
+      flex: 1;
+      height: 2px;
+      border-top: 2px dashed var(--border);
+      position: relative;
+    }
+
+    .map-driver {
+      position: absolute;
+      top: -7px;
+      font-size: 1rem;
+      transition: left 1s linear;
+    }
+
+    .map-dest {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* DISTANCE BAR */
+    .distance-bar {
+      background: #1a1a1a;
+      border-radius: 6px;
+      height: 6px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .distance-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--orange), var(--yellow));
+      transition: width 1s;
+    }
+
+    /* ACTIONS */
+    .order-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .action-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: opacity .2s;
+    }
+
+    .action-btn:active {
+      opacity: .7;
+    }
+
+    .btn-pickup {
+      background: var(--yellow);
+      color: #000;
+    }
+
+    .btn-delivered {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-issue {
+      background: var(--border);
+      color: var(--muted);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    /* GPS PANEL */
+    .gps-panel {
+      background: var(--card2);
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .gps-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .gps-coords {
+      font-family: monospace;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .gps-accuracy {
+      font-size: .75rem;
+    }
+
+    .gps-btn {
+      background: #1a1500;
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .8rem;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">🏍️</div>
+      <div class="login-title">Espace Livreur</div>
+      <div class="login-sub">Choisissez votre profil pour commencer</div>
+
+      <div id="driver-options">
+        <p style="color:var(--muted);text-align:center;font-size:.85rem;">Chargement des livreurs...</p>
       </div>
-    </div>
 
-    <!-- APP -->
-    <div class="app" id="appScreen">
-      <div class="app-header">
+      <button class="login-btn" id="login-btn" onclick="login()" disabled>
+        🚀 Commencer la journée
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app-screen">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="driver-info-bar">
+        <span id="driver-avatar-bar" style="font-size:1.5rem;">🏍️</span>
         <div>
-          <div class="hname" id="hName">Livreur</div>
-          <div class="hrole">🛵 TropRapide · Espace Livreur</div>
-        </div>
-        <div class="dtoggle" onclick="toggleDispo()">
-          <div class="ddot on" id="dispoDot"></div>
-          <span id="dispoLabel" style="font-size: 0.78rem; font-weight: 600"
-            >Disponible</span
-          >
+          <div id="driver-name-bar" style="font-weight:900;"></div>
+          <div id="driver-gps-bar" style="font-size:.72rem;color:var(--muted);">GPS actif</div>
         </div>
       </div>
-
-      <!-- STATS BAR -->
-      <div class="earn-bar">
-        <div class="ei">
-          <div class="ev y" id="e-courses">0</div>
-          <div class="el">Courses<br />aujourd'hui</div>
-        </div>
-        <div class="esep"></div>
-        <div class="ei">
-          <div class="ev g" id="e-fcfa">0</div>
-          <div class="el">FCFA<br />gagnés</div>
-        </div>
-        <div class="esep"></div>
-        <div class="ei">
-          <div class="ev b" id="e-dispo">0</div>
-          <div class="el">Courses<br />disponibles</div>
-        </div>
-      </div>
-
-      <!-- PAGE COURSES -->
-      <div class="page active" id="page-courses">
-        <div class="section-lbl">Courses disponibles</div>
-        <div class="course-wrap" id="courseWrap"></div>
-      </div>
-
-      <!-- PAGE GAINS -->
-      <div class="page" id="page-gains">
-        <div class="gains-wrap">
-          <!-- TOTAL -->
-          <div class="gains-header">
-            <div class="gains-total-lbl">Total gains cumulés</div>
-            <div class="gains-total" id="g-total">0 FCFA</div>
-            <div class="gains-total-sub" id="g-total-sub">
-              0 courses livrées au total
-            </div>
-          </div>
-
-          <!-- STATS GRID -->
-          <div class="gains-grid">
-            <div class="gcard">
-              <div class="gcard-val y" id="g-today-fcfa">0</div>
-              <div class="gcard-lbl">FCFA aujourd'hui</div>
-            </div>
-            <div class="gcard">
-              <div class="gcard-val g" id="g-today-courses">0</div>
-              <div class="gcard-lbl">Courses aujourd'hui</div>
-            </div>
-            <div class="gcard">
-              <div class="gcard-val b" id="g-week-fcfa">0</div>
-              <div class="gcard-lbl">FCFA cette semaine</div>
-            </div>
-            <div class="gcard">
-              <div class="gcard-val o" id="g-moy">0</div>
-              <div class="gcard-lbl">FCFA moyen/course</div>
-            </div>
-          </div>
-
-          <!-- FILTRE PÉRIODE -->
-          <div class="period-tabs">
-            <div class="ptab active" onclick="setPeriod('today', this)">
-              Aujourd'hui
-            </div>
-            <div class="ptab" onclick="setPeriod('week', this)">
-              Cette semaine
-            </div>
-            <div class="ptab" onclick="setPeriod('all', this)">Tout</div>
-          </div>
-
-          <!-- HISTORIQUE -->
-          <div class="history-title">📋 Historique des livraisons</div>
-          <div id="gainsList"></div>
-        </div>
-      </div>
-
-      <!-- BOTTOM NAV -->
-      <div class="bottom-nav">
-        <div class="ni active" id="nav-courses" onclick="showPage('courses')">
-          <div class="ni-ico">🛵</div>
-          <div class="ni-lbl">Courses</div>
-        </div>
-        <div class="ni" id="nav-gains" onclick="showPage('gains')">
-          <div class="ni-ico">💰</div>
-          <div class="ni-lbl">Mes gains</div>
-        </div>
-        <div class="ni" onclick="logout()">
-          <div class="ni-ico">🚪</div>
-          <div class="ni-lbl">Quitter</div>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="driver-badge" id="status-badge" onclick="toggleStatus()"></button>
+        <button class="logout-btn" onclick="logout()">Quitter</button>
       </div>
     </div>
 
-    <!-- ALERT -->
-    <div class="alert-overlay" id="alertOverlay">
-      <div class="sheet">
-        <div class="sh"></div>
-        <div class="semoji">🛵</div>
-        <div class="stitle">Nouvelle course !</div>
-        <div class="ssub" id="shSub"></div>
-        <div class="sdetail" id="shDetail"></div>
-        <div class="sbtns">
-          <button class="btn btn-take" onclick="takeFromAlert()">
-            🛵 Prendre la course
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-mini">
+        <div class="val" id="stat-today" style="color:var(--yellow);">0</div>
+        <div class="lbl">Livrées</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val" id="stat-active" style="color:var(--orange);">0</div>
+        <div class="lbl">En cours</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val" id="stat-earnings" style="color:var(--green);">0</div>
+        <div class="lbl">FCFA today</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="section">
+
+      <!-- GPS POSITION -->
+      <div class="gps-panel">
+        <div class="gps-row">
+          <div>
+            <div style="font-weight:700;font-size:.85rem;">📡 Ma Position GPS</div>
+            <div class="gps-coords" id="gps-display">lat: -- lng: --</div>
+          </div>
+          <button class="gps-btn" onclick="updateGPS()">↻ Actualiser</button>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);">Position mise à jour automatiquement toutes les 10s</div>
+      </div>
+
+      <!-- MY ORDERS -->
+      <div class="section-title">
+        📦 Mes Commandes
+        <span id="orders-count" style="color:var(--muted);font-weight:400;font-size:.8rem;"></span>
+      </div>
+      <div id="my-orders"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+    /* ============================================================
+       SHARED DB
+       ============================================================ */
+    const DB_KEY = 'troprapide_delivery';
+    const SEED_DRIVERS = {
+      'd1': { name: 'Ali Koné', avatar: '🏍️', lat: 5.370, lng: -3.980, status: 'available', speed: 1.2, activeOrders: 0 },
+      'd2': { name: 'Brice Yao', avatar: '🛵', lat: 5.300, lng: -4.050, status: 'available', speed: 1.0, activeOrders: 0 },
+      'd3': { name: 'Cédric Ama', avatar: '🏍️', lat: 5.352, lng: -4.020, status: 'available', speed: 1.5, activeOrders: 0 }
+    };
+
+    function getDB() {
+      try {
+        const d = JSON.parse(localStorage.getItem(DB_KEY));
+        if (!d) { return { orders: {}, drivers: structuredClone(SEED_DRIVERS), log: [], revenue: 0 }; }
+        if (!d.drivers || Object.keys(d.drivers).length === 0) d.drivers = structuredClone(SEED_DRIVERS);
+        return d;
+      } catch (e) { return { orders: {}, drivers: structuredClone(SEED_DRIVERS), log: [], revenue: 0 }; }
+    }
+    function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+    /* XSS sanitization */
+    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    function addLog(msg) {
+      const db = getDB(); db.log = db.log || [];
+      db.log.unshift({ time: Date.now(), msg }); if (db.log.length > 80) db.log = db.log.slice(0, 80);
+      saveDB(db);
+    }
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    let myDriverId = null;
+    let selectedDriverId = null;
+    let deliveryProgress = {}; // orderId -> { progress: 0-100, interval }
+
+    /* ============================================================
+       LOGIN
+       ============================================================ */
+    function renderDriverOptions() {
+      const db = getDB();
+      const drivers = db.drivers || SEED_DRIVERS;
+      const el = document.getElementById('driver-options');
+      el.innerHTML = Object.entries(drivers).map(([id, d]) => `
+    <div class="driver-option" id="opt-${id}" onclick="selectDriver('${id}')">
+      <span class="driver-avatar">${d.avatar || '🏍️'}</span>
+      <div class="driver-detail">
+        <div class="driver-name">${esc(d.name)}</div>
+        <div class="driver-status ${d.status === 'available' ? 'ds-available' : 'ds-busy'}">
+          ${d.status === 'available' ? '🟢 Disponible' : '🟠 En mission'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function selectDriver(id) {
+      selectedDriverId = id;
+      document.querySelectorAll('.driver-option').forEach(el => el.classList.remove('selected'));
+      document.getElementById('opt-' + id)?.classList.add('selected');
+      document.getElementById('login-btn').disabled = false;
+    }
+
+    function login() {
+      if (!selectedDriverId) return;
+      myDriverId = selectedDriverId;
+      localStorage.setItem('driver_session', myDriverId);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+
+      const db = getDB();
+      const d = db.drivers[myDriverId];
+      document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
+      document.getElementById('driver-name-bar').textContent = d.name;
+
+      // Mémoriser les commandes déjà existantes pour ne pas bipper au démarrage
+      const dbInit = getDB();
+      Object.entries(dbInit.orders || {}).forEach(([id, o]) => {
+        if (o.assignedTo === myDriverId) _knownAssignedIds.add(id);
+      });
+
+      updateGPS();
+      startGPSInterval();
+      renderApp();
+    }
+
+    function logout() {
+      myDriverId = null;
+      selectedDriverId = null;
+      localStorage.removeItem('driver_session');
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      renderDriverOptions();
+    }
+
+    /* ============================================================
+       GPS SIMULATION
+       ============================================================ */
+    function updateGPS() {
+      const db = getDB();
+      if (!db.drivers[myDriverId]) return;
+
+      // Simulate small GPS movement
+      const jitter = () => (Math.random() - .5) * 0.001;
+      db.drivers[myDriverId].lat += jitter();
+      db.drivers[myDriverId].lng += jitter();
+      saveDB(db);
+
+      const lat = db.drivers[myDriverId].lat.toFixed(5);
+      const lng = db.drivers[myDriverId].lng.toFixed(5);
+      document.getElementById('gps-display').textContent = `lat: ${lat}  lng: ${lng}`;
+      document.getElementById('driver-gps-bar').textContent = `${lat}, ${lng}`;
+    }
+
+    let gpsInterval = null;
+    function startGPSInterval() {
+      if (gpsInterval) clearInterval(gpsInterval);
+      gpsInterval = setInterval(updateGPS, 10000);
+    }
+
+    /* ============================================================
+       STATUS TOGGLE
+       ============================================================ */
+    function toggleStatus() {
+      const db = getDB();
+      const d = db.drivers[myDriverId];
+      if (!d) return;
+      if (d.status === 'busy') { alert('Vous avez des commandes en cours — livrez-les d\'abord'); return; }
+      d.status = d.status === 'available' ? 'offline' : 'available';
+      saveDB(db);
+      addLog(`🏍️ ${d.name} est maintenant ${d.status === 'available' ? 'disponible' : 'hors ligne'}`);
+      renderApp();
+    }
+
+    /* ============================================================
+       RENDER APP
+       ============================================================ */
+    function renderApp() {
+      const db = getDB();
+      const driver = db.drivers[myDriverId];
+      if (!driver) return;
+
+      // Status badge
+      const badge = document.getElementById('status-badge');
+      if (driver.status === 'available') {
+        badge.textContent = '🟢 Disponible';
+        badge.className = 'driver-badge badge-available';
+      } else if (driver.status === 'busy') {
+        badge.textContent = '🟠 En mission';
+        badge.className = 'driver-badge badge-busy';
+      } else {
+        badge.textContent = '⚫ Hors ligne';
+        badge.className = 'driver-badge badge-busy';
+      }
+
+      // My orders (assigned to me)
+      const myOrders = Object.entries(db.orders || {})
+        .filter(([, o]) => o.assignedTo === myDriverId && o.status !== 'livree')
+        .sort((a, b) => (a[1].dispatchedAt || 0) - (b[1].dispatchedAt || 0));
+
+      // Stats
+      const delivered = Object.values(db.orders || {}).filter(o => o.assignedTo === myDriverId && o.status === 'livree').length;
+      const earnings = delivered * 500; // 500 FCFA per delivery
+      document.getElementById('stat-today').textContent = delivered;
+      document.getElementById('stat-active').textContent = myOrders.length;
+      document.getElementById('stat-earnings').textContent = earnings.toLocaleString('fr');
+      document.getElementById('orders-count').textContent = myOrders.length + ' active';
+
+      // Orders list
+      const container = document.getElementById('my-orders');
+      if (myOrders.length === 0) {
+        container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <div style="font-weight:700;margin-bottom:4px;">Aucune commande assignée</div>
+        <div style="font-size:.85rem;">Mettez-vous disponible et attendez un dispatch</div>
+      </div>`;
+        return;
+      }
+
+      container.innerHTML = myOrders.map(([id, o]) => {
+        const progress = deliveryProgress[id]?.progress || 0;
+        return `
+    <div class="order-card ${o.status === 'en-route' ? 'en-route' : 'active'}">
+      <div class="order-header">
+        <span class="order-num">#${id.slice(-6).toUpperCase()}</span>
+        <span class="order-status-badge ${o.status === 'prete' ? 'os-prete' : 'os-en-route'}">
+          ${o.status === 'prete' ? '🟡 À récupérer' : '🔵 En livraison'}
+        </span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-icon">👤</span>
+        <div class="info-content">
+          <div class="info-label">Client</div>
+          <div class="info-value">${esc(o.client) || '—'} ${o.phone ? `• ${esc(o.phone)}` : ''}</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-icon">🍗</span>
+        <div class="info-content">
+          <div class="info-label">Commande</div>
+          <div class="info-value" style="font-size:.85rem;">${esc(o.items) || '—'}</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-icon">📍</span>
+        <div class="info-content">
+          <div class="info-label">Adresse de livraison</div>
+          <div class="info-value">${esc(o.zone)} ${o.address ? `— ${esc(o.address)}` : ''}</div>
+        </div>
+      </div>
+
+      ${o.status === 'en-route' ? `
+      <!-- ROUTE PROGRESS -->
+      <div class="map-mini">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:8px;font-weight:700;">PROGRESSION</div>
+        <div class="map-route">
+          <span style="font-size:.9rem;">🏪</span>
+          <div class="map-line">
+            <span class="map-driver" style="left:${progress}%;">🏍️</span>
+          </div>
+          <span style="font-size:.9rem;">🏠</span>
+        </div>
+        <div class="distance-bar"><div class="distance-fill" style="width:${progress}%;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:4px;">
+          <span>TropRapide</span>
+          <span style="color:var(--yellow);font-weight:700;">${Math.round(progress)}% — ~${Math.max(1, Math.round((100 - progress) / 15))} min</span>
+          <span>${esc(o.zone)}</span>
+        </div>
+      </div>` : ''}
+
+      <div class="order-actions">
+        ${o.status === 'prete' ? `
+          <button class="action-btn btn-pickup" onclick="pickupOrder('${id}')" style="grid-column:1/-1;">
+            🏪 J'ai récupéré la commande → En route !
+          </button>` : ''}
+        ${o.status === 'en-route' ? `
+          <button class="action-btn btn-delivered" onclick="deliverOrder('${id}')">
+            ✅ Livrée !
           </button>
-          <button class="btn btn-pass" onclick="closeAlert()">Passer</button>
-        </div>
+          <button class="action-btn btn-issue" onclick="reportIssue('${id}')">
+            ⚠️ Problème
+          </button>` : ''}
       </div>
-    </div>
+    </div>`;
+      }).join('');
+    }
 
-    <div class="toast-wrap" id="tw"></div>
+    /* ============================================================
+       ORDER ACTIONS
+       ============================================================ */
+    function pickupOrder(orderId) {
+      const db = getDB();
+      db.orders[orderId].status = 'en-route';
+      db.orders[orderId].pickedAt = Date.now();
+      saveDB(db);
+      addLog(`🏍️ ${db.drivers[myDriverId].name} en route pour #${orderId.slice(-4)}`);
+      startDeliveryProgress(orderId);
+      renderApp();
+    }
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-      import {
-        getDatabase,
-        ref,
-        onValue,
-        update,
-      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    function deliverOrder(orderId) {
+      const db = getDB();
+      db.orders[orderId].status = 'livree';
+      db.orders[orderId].deliveredAt = Date.now();
+      db.drivers[myDriverId].activeOrders = Math.max(0, (db.drivers[myDriverId].activeOrders || 1) - 1);
+      db.drivers[myDriverId].currentOrder = null;
+      if (db.drivers[myDriverId].activeOrders === 0) db.drivers[myDriverId].status = 'available';
+      db.revenue = (db.revenue || 0) + (db.orders[orderId].total || 0);
+      saveDB(db);
+      addLog(`✅ Commande #${orderId.slice(-4)} livrée par ${db.drivers[myDriverId].name}`);
+      stopDeliveryProgress(orderId);
+      renderApp();
+    }
 
-      const CFG_KEY = "troprapide_livreur_cfg";
-      const GAINS_KEY = "troprapide_gains_";
-      let db = null,
-        myName = "",
-        myZone = "",
-        isDispo = true;
-      let orders = {},
-        alertPending = null;
-      let prevAvailCount = 0,
-        currentPeriod = "today";
-      let gainsHistory = [];
+    function reportIssue(orderId) {
+      const reason = prompt('Décrivez le problème (ex: client absent, adresse introuvable):');
+      if (!reason) return;
+      addLog(`⚠️ Problème sur #${orderId.slice(-4)}: ${reason}`);
+      alert('Problème signalé. Le support va vous contacter.');
+    }
 
-      window.connectFirebase = function () {
-        const dburl = document.getElementById("c_dburl").value.trim();
-        const apiKey = document.getElementById("c_apikey").value.trim();
-        const projectId = document.getElementById("c_projectid").value.trim();
-        const name = document.getElementById("c_name").value;
-        const zone = document.getElementById("c_zone").value;
-        if (!dburl || !apiKey || !projectId) {
-          alert("Remplissez tous les champs !");
-          return;
-        }
-        const cfg = { dburl, apiKey, projectId, name, zone };
-        localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-        initApp(cfg);
-      };
+    /* ============================================================
+       DELIVERY ANIMATION
+       ============================================================ */
+    function startDeliveryProgress(orderId) {
+      if (deliveryProgress[orderId]) return;
+      deliveryProgress[orderId] = { progress: 0 };
+      deliveryProgress[orderId].interval = setInterval(() => {
+        deliveryProgress[orderId].progress = Math.min(99, deliveryProgress[orderId].progress + (Math.random() * 2));
+        renderApp();
+      }, 3000);
+    }
 
-      function initApp(cfg) {
-        myName = cfg.name;
-        myZone = cfg.zone;
-        // Load saved gains history
-        const saved = localStorage.getItem(GAINS_KEY + myName);
-        gainsHistory = saved ? JSON.parse(saved) : [];
+    function stopDeliveryProgress(orderId) {
+      if (deliveryProgress[orderId]?.interval) clearInterval(deliveryProgress[orderId].interval);
+      delete deliveryProgress[orderId];
+    }
 
-        const app = initializeApp(
-          {
-            apiKey: cfg.apiKey,
-            databaseURL: cfg.dburl,
-            projectId: cfg.projectId,
-          },
-          "livreur-" + Date.now(),
-        );
-        db = getDatabase(app);
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("appScreen").style.display = "flex";
-        document.getElementById("hName").textContent = myName;
-        startListening();
-        updateGainsDisplay();
-        requestNotifPermission();
+    /* ============================================================
+       INIT
+       ============================================================ */
+    renderDriverOptions();
+
+    // Restore session
+    const savedSession = localStorage.getItem('driver_session');
+    if (savedSession) {
+      const db = getDB();
+      if (db.drivers[savedSession]) {
+        selectedDriverId = savedSession;
+        document.querySelectorAll('.driver-option').forEach(el => el.classList.remove('selected'));
+        // Options not rendered yet in session restore, just login directly
+        myDriverId = savedSession;
+        const d = db.drivers[myDriverId];
+        document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
+        document.getElementById('driver-name-bar').textContent = d.name;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+        updateGPS();
+        startGPSInterval();
+        renderApp();
       }
+    }
 
-      function startListening() {
-        onValue(ref(db, "orders"), (snap) => {
-          orders = snap.val() || {};
-          const available = Object.entries(orders).filter(
-            ([k, v]) =>
-              (v.status === "nouvelle" || v.status === "prete") &&
-              v.livreur !== myName,
-          );
-          if (isDispo && available.length > prevAvailCount) {
-            const newest = available[available.length - 1];
-            showAlert({ ...newest[1], _key: newest[0] });
-            playBeep();
-            sendNotif(newest[1]);
+    /* ── BIP SONORE ── */
+    let _knownAssignedIds = new Set();
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [[880, 0], [1100, .2], [1320, .4]].forEach(([f, t]) => {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.connect(g); g.connect(ctx.destination);
+          o.frequency.value = f;
+          g.gain.setValueAtTime(.5, ctx.currentTime + t);
+          g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + t + .18);
+          o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + .19);
+        });
+        setTimeout(() => ctx.close(), 800);
+        if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 300]);
+      } catch (e) { }
+    }
+    function checkNewAssignments() {
+      if (!myDriverId) return;
+      const db = getDB();
+      const orders = db.orders || {};
+      let hasNew = false;
+      Object.entries(orders).forEach(([id, o]) => {
+        if (o.assignedTo === myDriverId) {
+          if (!_knownAssignedIds.has(id)) {
+            hasNew = true;
           }
-          prevAvailCount = available.length;
-          document.getElementById("e-dispo").textContent = available.length;
-          renderCourses();
-        });
-      }
-
-      // ── PAGES ──
-      window.showPage = function (page) {
-        document
-          .querySelectorAll(".page")
-          .forEach((p) => p.classList.remove("active"));
-        document
-          .querySelectorAll(".ni")
-          .forEach((n) => n.classList.remove("active"));
-        document.getElementById("page-" + page).classList.add("active");
-        document.getElementById("nav-" + page).classList.add("active");
-        if (page === "gains") updateGainsDisplay();
-      };
-
-      // ── COURSES ──
-      function renderCourses() {
-        const all = Object.entries(orders).map(([k, v]) => ({ ...v, _key: k }));
-        const available = all.filter(
-          (o) =>
-            (o.status === "nouvelle" || o.status === "prete") &&
-            o.livreur !== myName,
-        );
-        const mine = all.filter(
-          (o) =>
-            o.livreur === myName &&
-            (o.status === "en-route" || o.status === "acceptee"),
-        );
-        const list = [...mine, ...available].sort(
-          (a, b) => b.createdAt - a.createdAt,
-        );
-
-        const wrap = document.getElementById("courseWrap");
-        if (!list.length) {
-          wrap.innerHTML = `<div class="empty">🛵<br><br>Aucune course disponible.<br><span style="font-size:.8rem">Restez disponible, ça va arriver !</span></div>`;
-          return;
+          _knownAssignedIds.add(id); // on n'ajoute que les commandes de CE livreur
         }
-        const TYPES = {
-          repas: { e: "🍽", l: "Repas" },
-          colis: { e: "📦", l: "Colis" },
-          courses: { e: "🛒", l: "Courses" },
-          medicaments: { e: "💊", l: "Médic." },
-          documents: { e: "📄", l: "Docs" },
-          entreprise: { e: "🏢", l: "Entrep." },
-        };
-        const PAYLBL = {
-          cash: "💵 Cash",
-          momo: "📱 MoMo",
-          wave: "🌊 Wave",
-          prepaye: "✅ Prépayé",
-        };
-        wrap.innerHTML = list
-          .map((o) => {
-            const isMine = o.livreur === myName;
-            const elapsed = Math.floor((Date.now() - o.createdAt) / 60000);
-            const cfg = TYPES[o.type] || TYPES.repas;
-            const comm = Math.max(
-              500,
-              Math.round((Number(o.amount) * 0.1) / 100) * 100,
-            );
-            return `<div class="cc ${o.priority === "urgente" ? "urg" : ""} ${isMine ? "mine" : ""} ${o.isNew && !isMine ? "new-a" : ""}">
-      <div class="ch">
-        <div>
-          <div class="cid">#${o._key.slice(-6).toUpperCase()} <span style="font-size:.68rem;font-weight:400;color:var(--muted)">${cfg.e} ${cfg.l}</span></div>
-          <div style="font-size:.7rem;color:var(--muted)">il y a ${elapsed} min</div>
-        </div>
-        <div style="display:flex;gap:5px">
-          ${o.priority === "urgente" ? '<span class="cbadge urg">🔴 URGENT</span>' : ""}
-          <span class="cbadge ${isMine ? "mine" : o.status === "livree" ? "livree" : "dispo"}">${isMine ? "🔵 Ma course" : o.status === "prete" ? "🍽 Prête" : "🟡 Dispo"}</span>
-        </div>
-      </div>
-      <div class="cb">
-        <div class="route">
-          <div class="rdots"><div class="ds"></div><div class="dl"></div><div class="de"></div></div>
-          <div class="ri">
-            <div class="rfrom">${o.restaurant}</div>
-            <div class="rfrom-s">📦 Récupérer la commande</div>
-            <div class="rto">Zone ${o.zone}</div>
-            <div class="rto-s">👤 ${o.client} · ${o.phone}</div>
-          </div>
-        </div>
-        <div class="chips">
-          <span class="chip">💰 ${Number(o.amount).toLocaleString()} FCFA</span>
-          <span class="chip comm">🛵 ~${comm.toLocaleString()} FCFA commission</span>
-          <span class="chip">${PAYLBL[o.paiement] || ""}</span>
-          ${o.notes ? `<span class="chip">📝 ${o.notes}</span>` : ""}
-        </div>
-        <div class="cactions">
-          ${!isMine ? `<button class="btn btn-take" onclick="takeCourse('${o._key}')">🛵 Prendre</button>` : ""}
-          ${isMine ? `<button class="btn btn-done" onclick="markDone('${o._key}')">✅ Livré !</button>` : ""}
-          ${isMine ? `<button class="btn btn-nav" onclick="navigate('${o.zone}')">🗺</button>` : ""}
-          <button class="btn btn-call" onclick="callClient('${o.phone}')">📞</button>
-        </div>
-      </div>
-    </div>`;
-          })
-          .join("");
-      }
+      });
+      if (hasNew) playBeep();
+    }
 
-      window.takeCourse = async function (key) {
-        if (!db) return;
-        const o = orders[key];
-        if (!o) return;
-        await update(ref(db, "orders/" + key), {
-          livreur: myName,
-          status: "en-route",
-        });
-        toast("🛵 Course prise ! En route", "s");
-      };
+    // Cross-tab sync
+    window.addEventListener('storage', e => { if (e.key === DB_KEY && myDriverId) { checkNewAssignments(); renderApp(); } });
 
-      window.markDone = async function (key) {
-        if (!db) return;
-        const o = orders[key];
-        if (!o) return;
-        const comm = Math.max(
-          500,
-          Math.round((Number(o.amount) * 0.1) / 100) * 100,
-        );
-        await update(ref(db, "orders/" + key), { status: "livree" });
+    // Poll every 5s
+    setInterval(() => { if (myDriverId) { checkNewAssignments(); renderApp(); } }, 5000);
+  </script>
+</body>
 
-        // Save to gains history
-        const gain = {
-          id: key,
-          date: Date.now(),
-          restaurant: o.restaurant || "",
-          zone: o.zone || "",
-          type: o.type || "repas",
-          items: o.items || "",
-          commission: comm,
-        };
-        gainsHistory.unshift(gain);
-        localStorage.setItem(GAINS_KEY + myName, JSON.stringify(gainsHistory));
-
-        // Update header stats
-        const todayGains = getTodayGains();
-        document.getElementById("e-courses").textContent = todayGains.count;
-        document.getElementById("e-fcfa").textContent =
-          todayGains.total.toLocaleString();
-
-        toast(`✅ Livré ! +${comm.toLocaleString()} FCFA gagné 💰`, "s");
-        updateGainsDisplay();
-      };
-
-      // ── GAINS ──
-      function getTodayGains() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayItems = gainsHistory.filter(
-          (g) => g.date >= today.getTime(),
-        );
-        return {
-          count: todayItems.length,
-          total: todayItems.reduce((s, g) => s + g.commission, 0),
-        };
-      }
-      function getWeekGains() {
-        const week = new Date();
-        week.setDate(week.getDate() - 7);
-        week.setHours(0, 0, 0, 0);
-        return gainsHistory.filter((g) => g.date >= week.getTime());
-      }
-
-      function setPeriod(p, el) {
-        currentPeriod = p;
-        document
-          .querySelectorAll(".ptab")
-          .forEach((t) => t.classList.remove("active"));
-        el.classList.add("active");
-        renderGainsList();
-      }
-      window.setPeriod = setPeriod;
-
-      function updateGainsDisplay() {
-        const all = gainsHistory;
-        const today = getTodayGains();
-        const week = getWeekGains();
-        const totalFcfa = all.reduce((s, g) => s + g.commission, 0);
-        const moy = all.length ? Math.round(totalFcfa / all.length) : 0;
-
-        document.getElementById("g-total").textContent =
-          totalFcfa.toLocaleString() + " FCFA";
-        document.getElementById("g-total-sub").textContent =
-          all.length + " courses livrées au total";
-        document.getElementById("g-today-fcfa").textContent =
-          today.total.toLocaleString();
-        document.getElementById("g-today-courses").textContent = today.count;
-        document.getElementById("g-week-fcfa").textContent = week
-          .reduce((s, g) => s + g.commission, 0)
-          .toLocaleString();
-        document.getElementById("g-moy").textContent = moy.toLocaleString();
-
-        // Update header bar
-        document.getElementById("e-courses").textContent = today.count;
-        document.getElementById("e-fcfa").textContent =
-          today.total.toLocaleString();
-
-        renderGainsList();
-      }
-
-      function renderGainsList() {
-        const el = document.getElementById("gainsList");
-        let list = gainsHistory;
-        if (currentPeriod === "today") {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          list = gainsHistory.filter((g) => g.date >= today.getTime());
-        } else if (currentPeriod === "week") {
-          list = getWeekGains();
-        }
-
-        if (!list.length) {
-          el.innerHTML = `<div class="empty-gains"><div class="empty-gains-ico">💰</div><div class="empty-gains-txt">Aucune livraison ${currentPeriod === "today" ? "aujourd'hui" : currentPeriod === "week" ? "cette semaine" : "enregistrée"}.<br>Prenez des courses pour voir vos gains ici !</div></div>`;
-          return;
-        }
-
-        const TYPES = {
-          repas: "🍽",
-          colis: "📦",
-          courses: "🛒",
-          medicaments: "💊",
-          documents: "📄",
-          entreprise: "🏢",
-        };
-        el.innerHTML = list
-          .map((g) => {
-            const d = new Date(g.date);
-            const dateStr = d.toLocaleDateString("fr-FR", {
-              day: "2-digit",
-              month: "short",
-            });
-            const timeStr = d.toLocaleTimeString("fr-FR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            const ico = TYPES[g.type] || "🛵";
-            return `<div class="gain-item">
-      <div class="gain-icon">${ico}</div>
-      <div class="gain-info">
-        <div class="gain-route">${g.restaurant} → ${g.zone}</div>
-        <div class="gain-meta">${g.items ? g.items.substring(0, 30) + "..." : ""}</div>
-      </div>
-      <div class="gain-amount">
-        <div class="gain-fcfa">+${g.commission.toLocaleString()} F</div>
-        <div class="gain-date">${dateStr} · ${timeStr}</div>
-      </div>
-    </div>`;
-          })
-          .join("");
-      }
-
-      // ── ALERT ──
-      function showAlert(o) {
-        alertPending = o;
-        const comm = Math.max(
-          500,
-          Math.round((Number(o.amount) * 0.1) / 100) * 100,
-        );
-        document.getElementById("shSub").textContent =
-          `Zone: ${o.zone} · ${new Date(o.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
-        document.getElementById("shDetail").innerHTML = `
-    <div class="srow"><span class="sl">Restaurant</span><span class="sv">${o.restaurant}</span></div>
-    <div class="srow"><span class="sl">Livraison</span><span class="sv">📍 ${o.zone}</span></div>
-    <div class="srow"><span class="sl">Commande</span><span class="sv">${o.items ? o.items.substring(0, 40) : ""}</span></div>
-    <div class="srow"><span class="sl">Commission</span><span class="sv" style="color:var(--green)">~${comm.toLocaleString()} FCFA 💰</span></div>
-    <div class="srow"><span class="sl">Paiement</span><span class="sv">${{ cash: "💵 Cash", momo: "📱 MoMo", wave: "🌊 Wave", prepaye: "✅ Prépayé" }[o.paiement] || ""}</span></div>
-    <div class="srow"><span class="sl">Priorité</span><span class="sv">${o.priority === "urgente" ? "🔴 URGENTE" : "🟢 Normale"}</span></div>
-  `;
-        document.getElementById("alertOverlay").classList.add("show");
-      }
-      window.closeAlert = function () {
-        document.getElementById("alertOverlay").classList.remove("show");
-      };
-      window.takeFromAlert = function () {
-        if (alertPending) {
-          takeCourse(alertPending._key);
-        }
-        closeAlert();
-      };
-
-      window.toggleDispo = function () {
-        isDispo = !isDispo;
-        document.getElementById("dispoDot").className =
-          "ddot " + (isDispo ? "on" : "off");
-        document.getElementById("dispoLabel").textContent = isDispo
-          ? "Disponible"
-          : "Pause";
-        toast(
-          isDispo ? "🟢 Vous êtes disponible" : "⏸ En pause",
-          isDispo ? "s" : "w",
-        );
-      };
-
-      window.navigate = function (zone) {
-        window.open(
-          `https://www.google.com/maps/search/${encodeURIComponent(zone + " Abidjan")}`,
-          "_blank",
-        );
-      };
-      window.callClient = function (phone) {
-        window.open(`tel:${phone}`, "_self");
-      };
-
-      function playBeep() {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          [
-            [660, 0],
-            [880, 0.18],
-            [1100, 0.36],
-          ].forEach(([f, t]) => {
-            const o = ctx.createOscillator(),
-              g = ctx.createGain();
-            o.connect(g);
-            g.connect(ctx.destination);
-            o.frequency.value = f;
-            o.type = "sine";
-            g.gain.setValueAtTime(0, ctx.currentTime + t);
-            g.gain.linearRampToValueAtTime(0.3, ctx.currentTime + t + 0.05);
-            g.gain.linearRampToValueAtTime(0, ctx.currentTime + t + 0.14);
-            o.start(ctx.currentTime + t);
-            o.stop(ctx.currentTime + t + 0.15);
-          });
-        } catch (e) {}
-      }
-      function requestNotifPermission() {
-        if ("Notification" in window && Notification.permission === "default")
-          Notification.requestPermission();
-      }
-      function sendNotif(o) {
-        if ("Notification" in window && Notification.permission === "granted")
-          new Notification("🛵 Nouvelle course", {
-            body: `${o.restaurant} → ${o.zone}`,
-          });
-      }
-
-      function toast(msg, type = "s") {
-        const w = document.getElementById("tw"),
-          el = document.createElement("div");
-        el.className = `toast ${type}`;
-        el.innerHTML = `<span class="t-ico">${{ s: "✅", w: "⚠️", e: "❌" }[type] || "📢"}</span><span class="t-txt">${msg}</span>`;
-        w.prepend(el);
-        setTimeout(() => {
-          el.style.opacity = "0";
-          el.style.transition = "opacity .3s";
-        }, 2800);
-        setTimeout(() => el.remove(), 3200);
-      }
-
-      window.logout = function () {
-        localStorage.removeItem(CFG_KEY);
-        location.reload();
-      };
-
-      const saved = localStorage.getItem(CFG_KEY);
-      if (saved) {
-        try {
-          initApp(JSON.parse(saved));
-        } catch (e) {}
-      }
-    </script>
-  </body>
 </html>
