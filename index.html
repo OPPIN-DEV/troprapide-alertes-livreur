@@ -1103,17 +1103,14 @@
     }
 
     /* ============================================================
-       FIREBASE REAL-TIME LISTENER
+       FIREBASE REAL-TIME LISTENERS — separate paths
        ============================================================ */
-    rtdb.ref('/').on('value', snap => {
-      state = snap.val() || { orders: {}, drivers: {}, log: {}, revenue: 0 };
-
-      // Update login screen if visible
+    function onFirebaseUpdate() {
+      // Update login screen driver list
       if (document.getElementById('login-screen').style.display !== 'none') {
         renderDriverOptions();
       }
-
-      // Check for new assignments and re-render if logged in
+      // Update app screen if logged in
       if (myDriverId) {
         let hasNew = false;
         Object.entries(state.orders || {}).forEach(([id, o]) => {
@@ -1123,15 +1120,27 @@
           }
         });
         if (hasNew) playBeep();
-
-        // Update GPS display from state
         const d = (state.drivers || {})[myDriverId];
         if (d) {
           document.getElementById('driver-gps-bar').textContent = `${(d.lat || 0).toFixed(5)}, ${(d.lng || 0).toFixed(5)}`;
         }
         renderApp();
       }
+    }
+
+    rtdb.ref('/orders').on('value', snap => {
+      state.orders = snap.val() || {};
+      onFirebaseUpdate();
+    }, err => {
+      console.error('Firebase /orders error:', err.code);
+      document.getElementById('driver-options').innerHTML =
+        `<p style="color:#EF4444;text-align:center;font-size:.85rem;">❌ Erreur Firebase: ${err.code}</p>`;
     });
+
+    rtdb.ref('/drivers').on('value', snap => {
+      state.drivers = snap.val() || {};
+      onFirebaseUpdate();
+    }, err => console.error('drivers:', err.code));
 
     /* ============================================================
        INIT — restore session
