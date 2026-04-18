@@ -620,7 +620,7 @@
   </div>
 
   <!-- MAIN APP -->
-  <div id="app-screen">
+  <div id="app-screen" style="display:none;">
 
     <!-- TOPBAR -->
     <div class="topbar">
@@ -743,7 +743,8 @@
        LOGIN
        ============================================================ */
     function renderDriverOptions() {
-      const drivers = (state.drivers && Object.keys(state.drivers).length > 0) ? state.drivers : SEED_DRIVERS;
+      if (!state.drivers || Object.keys(state.drivers).length === 0) return;
+      const drivers = state.drivers;
       const el = document.getElementById('driver-options');
       el.innerHTML = Object.entries(drivers).map(([id, d]) => `
     <div class="driver-option" id="opt-${id}" onclick="selectDriver('${id}')">
@@ -775,16 +776,16 @@
       myDriverId = selectedDriverId;
       localStorage.setItem('driver_session', myDriverId);
 
-      const drivers = state.drivers || SEED_DRIVERS;
-      // Ensure driver exists in Firebase
+      // Ensure driver exists in Firebase (should already, since we only show real Firebase drivers)
       if (!state.drivers || !state.drivers[myDriverId]) {
-        rtdb.ref(`/livreurs/${myDriverId}`).set(SEED_DRIVERS[myDriverId] || SEED_DRIVERS.d1);
+        console.warn('Driver not found in Firebase:', myDriverId);
+        return;
       }
 
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
 
-      const d = (state.drivers || SEED_DRIVERS)[myDriverId];
+      const d = state.drivers[myDriverId];
       document.getElementById('driver-avatar-bar').textContent = d.avatar || '🏍️';
       document.getElementById('driver-name-bar').textContent = d.name;
 
