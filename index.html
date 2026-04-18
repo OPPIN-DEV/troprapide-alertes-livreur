@@ -911,13 +911,12 @@
 
       container.innerHTML = myOrders.map(([id, o]) => {
         const progress = deliveryProgress[id]?.progress || 0;
+        const accepted = o.status === 'attribue' && o.acceptedAt;
         const cardClass = o.status === 'attribue' ? 'attribue' : o.status === 'en-route' ? 'en-route' : 'active';
-        const statusLabel = {
-          attribue: '📲 En attente de votre réponse',
-          prete: '🟡 À récupérer au restaurant',
-          'en-route': '🔵 En livraison'
-        }[o.status] || o.status;
-        const statusClass = o.status === 'prete' ? 'os-prete' : 'os-en-route';
+        const statusLabel = o.status === 'attribue'
+          ? (accepted ? '🟡 Acceptée — À récupérer au restaurant' : '📲 En attente de votre réponse')
+          : ({ 'en-route': '🔵 En livraison' }[o.status] || o.status);
+        const statusClass = accepted ? 'os-prete' : 'os-en-route';
 
         return `
     <div class="order-card ${cardClass}">
@@ -925,7 +924,7 @@
         <span class="order-num">#${id.slice(-6).toUpperCase()}</span>
         <span class="order-status-badge ${statusClass}">${statusLabel}</span>
       </div>
-      ${o.status === 'attribue' ? `
+      ${o.status === 'attribue' && !o.acceptedAt ? `
       <div class="accept-banner">
         <div class="title">🔔 Nouvelle commande assignée !</div>
         <div class="sub">Acceptez ou refusez dans les 60 secondes</div>
@@ -977,13 +976,13 @@
         </div>
       </div>`: ''}
       <div class="order-actions">
-        ${o.status === 'attribue' ? `
+        ${o.status === 'attribue' && !o.acceptedAt ? `
           <button class="action-btn btn-accept" onclick="acceptOrder('${id}')">✅ Accepter</button>
           <button class="action-btn btn-decline" onclick="declineOrder('${id}')">❌ Refuser</button>` : ''}
-        ${o.status === 'prete' ? `
+        ${o.status === 'attribue' && o.acceptedAt ? `
           <button class="action-btn btn-pickup" onclick="pickupOrder('${id}')" style="grid-column:1/-1;">
             🏪 J'ai récupéré → En route !
-          </button>`: ''}
+          </button>` : ''}
         ${o.status === 'en-route' ? `
           <button class="action-btn btn-delivered" onclick="deliverOrder('${id}')">✅ Livrée !</button>
           <button class="action-btn btn-issue" onclick="reportIssue('${id}')">⚠️ Problème</button>` : ''}
@@ -998,7 +997,8 @@
     function acceptOrder(orderId) {
       const o = (state.orders || {})[orderId];
       if (!o) return;
-      rtdb.ref(`/orders/${orderId}`).update({ status: 'prete', acceptedAt: Date.now() }).catch(err => console.error('acceptOrder failed:', err));
+      // Keep status 'attribue' — only mark acceptedAt so the pickup button appears
+      rtdb.ref(`/orders/${orderId}`).update({ acceptedAt: Date.now() }).catch(err => console.error('acceptOrder failed:', err));
       const driverName = ((state.drivers || {})[myDriverId] || {}).name || myDriverId;
       addLog(`✅ ${driverName} a accepté la commande #${orderId.slice(-4)}`);
       try {
@@ -1116,7 +1116,7 @@
       if (myDriverId) {
         let hasNew = false;
         Object.entries(state.orders || {}).forEach(([id, o]) => {
-          if (o.assignedTo === myDriverId && (o.status === 'attribue' || o.status === 'prete')) {
+          if (o.assignedTo === myDriverId && o.status === 'attribue' && !o.acceptedAt) {
             if (!_knownAssignedIds.has(id)) { hasNew = true; }
             _knownAssignedIds.add(id);
           }
