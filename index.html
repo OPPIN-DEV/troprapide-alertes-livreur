@@ -778,7 +778,7 @@
       const drivers = state.drivers || SEED_DRIVERS;
       // Ensure driver exists in Firebase
       if (!state.drivers || !state.drivers[myDriverId]) {
-        rtdb.ref(`/drivers/${myDriverId}`).set(SEED_DRIVERS[myDriverId] || SEED_DRIVERS.d1);
+        rtdb.ref(`/livreurs/${myDriverId}`).set(SEED_DRIVERS[myDriverId] || SEED_DRIVERS.d1);
       }
 
       document.getElementById('login-screen').style.display = 'none';
@@ -802,7 +802,7 @@
     function logout() {
       if (gpsInterval) clearInterval(gpsInterval);
       if (myDriverId) {
-        rtdb.ref(`/drivers/${myDriverId}`).update({ status: 'available' });
+        rtdb.ref(`/livreurs/${myDriverId}`).update({ status: 'available' });
       }
       myDriverId = null;
       selectedDriverId = null;
@@ -824,7 +824,7 @@
       const newLat = parseFloat((baseLat + jitter()).toFixed(6));
       const newLng = parseFloat((baseLng + jitter()).toFixed(6));
 
-      rtdb.ref(`/drivers/${myDriverId}`).update({ lat: newLat, lng: newLng });
+      rtdb.ref(`/livreurs/${myDriverId}`).update({ lat: newLat, lng: newLng });
 
       document.getElementById('gps-display').textContent = `lat: ${newLat}  lng: ${newLng}`;
       document.getElementById('driver-gps-bar').textContent = `${newLat}, ${newLng}`;
@@ -844,7 +844,7 @@
       if (!driver) return;
       if (driver.status === 'busy') { alert("Vous avez des commandes en cours — livrez-les d'abord"); return; }
       const newStatus = driver.status === 'available' ? 'offline' : 'available';
-      rtdb.ref(`/drivers/${myDriverId}`).update({ status: newStatus });
+      rtdb.ref(`/livreurs/${myDriverId}`).update({ status: newStatus });
       addLog(`🏍️ ${driver.name} est maintenant ${newStatus === 'available' ? 'disponible' : 'hors ligne'}`);
     }
 
@@ -1025,9 +1025,9 @@
       updates[`/orders/${orderId}/assignedName`] = null;
       updates[`/orders/${orderId}/declinedBy`] = existingDeclined;
       updates[`/orders/${orderId}/declinedAt`] = Date.now();
-      updates[`/drivers/${myDriverId}/status`] = 'available';
-      updates[`/drivers/${myDriverId}/activeOrders`] = Math.max(0, ((state.drivers || {})[myDriverId]?.activeOrders || 1) - 1);
-      updates[`/drivers/${myDriverId}/currentOrder`] = null;
+      updates[`/livreurs/${myDriverId}/status`] = 'available';
+      updates[`/livreurs/${myDriverId}/activeOrders`] = Math.max(0, ((state.drivers || {})[myDriverId]?.activeOrders || 1) - 1);
+      updates[`/livreurs/${myDriverId}/currentOrder`] = null;
       rtdb.ref().update(updates);
       addLog(`❌ ${driverName} a refusé la commande #${orderId.slice(-4)} — en attente d'un autre livreur`);
     }
@@ -1049,9 +1049,9 @@
       const updates = {};
       updates[`/orders/${orderId}/status`] = 'livree';
       updates[`/orders/${orderId}/deliveredAt`] = Date.now();
-      updates[`/drivers/${myDriverId}/activeOrders`] = newActiveOrders;
-      updates[`/drivers/${myDriverId}/currentOrder`] = null;
-      if (newActiveOrders === 0) updates[`/drivers/${myDriverId}/status`] = 'available';
+      updates[`/livreurs/${myDriverId}/activeOrders`] = newActiveOrders;
+      updates[`/livreurs/${myDriverId}/currentOrder`] = null;
+      if (newActiveOrders === 0) updates[`/livreurs/${myDriverId}/status`] = 'available';
       updates['/revenue'] = (state.revenue || 0) + (o.total || 0);
       rtdb.ref().update(updates);
       addLog(`✅ Commande #${orderId.slice(-4)} livrée par ${driverName}`);
@@ -1137,10 +1137,10 @@
         `<p style="color:#EF4444;text-align:center;font-size:.85rem;">❌ Erreur Firebase: ${err.code}</p>`;
     });
 
-    rtdb.ref('/drivers').on('value', snap => {
+    rtdb.ref('/livreurs').on('value', snap => {
       state.drivers = snap.val() || {};
       onFirebaseUpdate();
-    }, err => console.error('drivers:', err.code));
+    }, err => console.error('livreurs:', err.code));
 
     /* ============================================================
        INIT — restore session
@@ -1148,7 +1148,7 @@
     const savedSession = localStorage.getItem('driver_session');
     if (savedSession) {
       // Wait for Firebase initial data before logging in
-      rtdb.ref(`/drivers/${savedSession}`).once('value', snap => {
+      rtdb.ref(`/livreurs/${savedSession}`).once('value', snap => {
         if (snap.exists()) {
           selectedDriverId = savedSession;
           myDriverId = savedSession;
