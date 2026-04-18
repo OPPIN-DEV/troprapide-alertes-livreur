@@ -998,7 +998,7 @@
     function acceptOrder(orderId) {
       const o = (state.orders || {})[orderId];
       if (!o) return;
-      rtdb.ref(`/orders/${orderId}`).update({ status: 'prete', acceptedAt: Date.now() });
+      rtdb.ref(`/orders/${orderId}`).update({ status: 'prete', acceptedAt: Date.now() }).catch(err => console.error('acceptOrder failed:', err));
       const driverName = ((state.drivers || {})[myDriverId] || {}).name || myDriverId;
       addLog(`✅ ${driverName} a accepté la commande #${orderId.slice(-4)}`);
       try {
@@ -1029,13 +1029,13 @@
       updates[`/livreurs/${myDriverId}/status`] = 'available';
       updates[`/livreurs/${myDriverId}/activeOrders`] = Math.max(0, ((state.drivers || {})[myDriverId]?.activeOrders || 1) - 1);
       updates[`/livreurs/${myDriverId}/currentOrder`] = null;
-      rtdb.ref().update(updates);
+      rtdb.ref().update(updates).catch(err => console.error('declineOrder failed:', err));
       addLog(`❌ ${driverName} a refusé la commande #${orderId.slice(-4)} — en attente d'un autre livreur`);
     }
 
     function pickupOrder(orderId) {
       const driverName = ((state.drivers || {})[myDriverId] || {}).name || myDriverId;
-      rtdb.ref(`/orders/${orderId}`).update({ status: 'en-route', pickedAt: Date.now() });
+      rtdb.ref(`/orders/${orderId}`).update({ status: 'en-route', pickedAt: Date.now() }).catch(err => console.error('pickupOrder failed:', err));
       addLog(`🏍️ ${driverName} en route pour #${orderId.slice(-4)}`);
       startDeliveryProgress(orderId);
     }
@@ -1053,8 +1053,9 @@
       updates[`/livreurs/${myDriverId}/activeOrders`] = newActiveOrders;
       updates[`/livreurs/${myDriverId}/currentOrder`] = null;
       if (newActiveOrders === 0) updates[`/livreurs/${myDriverId}/status`] = 'available';
-      updates['/revenue'] = (state.revenue || 0) + (o.total || 0);
-      rtdb.ref().update(updates);
+      rtdb.ref().update(updates).catch(err => console.error('deliverOrder failed:', err));
+      // Revenue update is separate so a rules failure doesn't revert the order status
+      rtdb.ref('/revenue').transaction(current => (current || 0) + (o.total || 0));
       addLog(`✅ Commande #${orderId.slice(-4)} livrée par ${driverName}`);
       stopDeliveryProgress(orderId);
     }
